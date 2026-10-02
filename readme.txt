@@ -47,14 +47,14 @@ Large blur values on big areas can cost rendering time on low-powered devices. B
 
 == Screenshots ==
 
-1. `blur(50px)`: Blur at its maximum. How the sea looks before my first coffee.
-2. `brightness(200%)`: Brightness at its maximum. Someone opened the curtains.
-3. `contrast(200%)`: Contrast at its maximum. The sea, but it has opinions now.
-4. `grayscale(100%)`: Grayscale at its maximum. A very serious photo of the sea.
-5. `hue-rotate(180deg)`: Hue turned halfway round the color wheel (a full 360deg turn looks the same as none).
-6. `invert(100%)`: Invert at its maximum. The sea from the Upside Down.
-7. `saturate(300%)`: Saturation at its maximum. The holiday brochure version.
-8. `sepia(100%)`: Sepia at its maximum. Grandpa's slides from 1974.
+1. Blur, `blur(50px)`: "Forgot my glasses at the beach."
+2. Brightness, `brightness(200%)`: "Someone opened the curtains."
+3. Contrast, `contrast(200%)`: "Every photo on Flickr in 2009."
+4. Grayscale, `grayscale(100%)`: "A very serious photo of the sea, for a very serious website."
+5. Hue, `hue-rotate(180deg)`: "The sea's mood ring, today." Halfway round the color wheel; a full 360deg turn looks the same as none.
+6. Invert, `invert(100%)`: "Found this negative at the back of a drawer."
+7. Saturation, `saturate(300%)`: "Filtered for Instagram, circa 2012."
+8. Sepia, `sepia(100%)`: "Grandpa's slides from 1974."
 
 == Changelog ==
 
