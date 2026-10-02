@@ -1,0 +1,27 @@
+{
+	"name": "background-blur-control",
+	"version": "1.1.0",
+	"description": "Backdrop blur setting for blocks with a semi-transparent background.",
+	"author": "Job Thomas",
+	"license": "GPL-2.0-or-later",
+	"homepage": "https://github.com/jobthomas/background-blur-control",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jobthomas/background-blur-control.git"
+	},
+	"files": [
+		"background-blur-control.php",
+		"readme.txt",
+		"build"
+	],
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"lint:js": "wp-scripts lint-js src",
+		"plugin-zip": "wp-scripts plugin-zip"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.0.0",
+		"typescript": "^5.9.3"
+	}
+}
