@@ -47,14 +47,15 @@ Large blur values on big areas can cost rendering time on low-powered devices. B
 
 == Screenshots ==
 
-1. Blur, `blur(50px)`: "Forgot my glasses at the beach."
-2. Brightness, `brightness(200%)`: "Someone opened the curtains."
-3. Contrast, `contrast(200%)`: "Every photo on Flickr in 2009."
-4. Grayscale, `grayscale(100%)`: "A very serious photo of the sea, for a very serious website."
-5. Hue, `hue-rotate(180deg)`: "The sea's mood ring, today." Halfway round the color wheel; a full 360deg turn looks the same as none.
-6. Invert, `invert(100%)`: "Found this negative at the back of a drawer."
-7. Saturation, `saturate(300%)`: "Filtered for Instagram, circa 2012."
-8. Sepia, `sepia(100%)`: "Grandpa's slides from 1974."
+1. The Backdrop filter setting sits right below the background color. Pick an effect, then set the amount.
+2. Blur, `blur(50px)`.
+3. Brightness, `brightness(200%)`.
+4. Contrast, `contrast(200%)`.
+5. Grayscale, `grayscale(100%)`.
+6. Hue, `hue-rotate(180deg)`. Halfway round the color wheel; a full 360deg turn looks the same as none.
+7. Invert, `invert(100%)`.
+8. Saturation, `saturate(300%)`.
+9. Sepia, `sepia(100%)`.
 
 == Changelog ==
 
