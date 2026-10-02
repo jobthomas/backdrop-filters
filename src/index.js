@@ -6,9 +6,13 @@
  * saved into post content.
  */
 import { addFilter } from '@wordpress/hooks';
-import { getBlockSupport, hasBlockSupport } from '@wordpress/blocks';
+import {
+	getBlockSupport,
+	getBlockType,
+	hasBlockSupport,
+} from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, useSettings } from '@wordpress/block-editor';
 import { RangeControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -69,12 +73,34 @@ const isSupported = ( name ) =>
 	getBlockSupport( name, [ 'color', 'background' ] ) !== false &&
 	! hasBlockSupport( name, 'backdropFilter' );
 
-// Blocks with background gradients show background color in the Background
-// panel; the rest keep it in the Color panel.
-const panelFor = ( name ) =>
-	getBlockSupport( name, [ 'background', 'gradient' ] )
-		? 'background'
-		: 'color';
+// Blocks such as Button and Table put their background (and border radius)
+// on an inner element, described by the selectors in block.json. Returns the
+// final simple selectors of those elements, or [] when it is the wrapper.
+const targetsFor = ( name ) => {
+	const type = getBlockType( name );
+	const skip = type?.supports?.color?.__experimentalSkipSerialization;
+	if ( skip !== true && ! skip?.includes?.( 'background' ) ) {
+		return [];
+	}
+	const { selectors = {} } = type;
+	const selector =
+		selectors.color?.background ??
+		( typeof selectors.color === 'string'
+			? selectors.color
+			: selectors.color?.root ) ??
+		selectors.root ??
+		type.__experimentalSelector ??
+		'';
+	return selector
+		.split( ',' )
+		.map( ( part ) =>
+			part
+				.trim()
+				.split( /[\s>+~]+/ )
+				.pop()
+		)
+		.filter( Boolean );
+};
 
 // Same whitelist as the PHP renderer, so the preview matches the front end.
 const NUMBER = '\\d{1,3}(?:\\.\\d{1,2})?';
@@ -98,6 +124,9 @@ const toCSS = ( value ) => {
 const withControl = createHigherOrderComponent(
 	( BlockEdit ) => ( props ) => {
 		const { name, attributes, setAttributes, isSelected } = props;
+		// WordPress 7.1 moved background color into the Background panel,
+		// together with the background.gradient setting.
+		const [ backgroundGradient ] = useSettings( 'background.gradient' );
 
 		if ( ! isSelected || ! isSupported( name ) ) {
 			return <BlockEdit { ...props } />;
@@ -108,6 +137,7 @@ const withControl = createHigherOrderComponent(
 		const [ , fn, amount ] =
 			/^([a-z-]+)\(([\d.]+)[a-z%]*\)$/.exec( value ?? '' ) ?? [];
 		const effect = EFFECTS[ fn ];
+		const panel = backgroundGradient === undefined ? 'color' : 'background';
 		const isCustom = !! value && ! effect;
 
 		const update = ( backdropFilter ) => {
@@ -121,8 +151,14 @@ const withControl = createHigherOrderComponent(
 		return (
 			<>
 				<BlockEdit { ...props } />
-				<InspectorControls group={ panelFor( name ) }>
-					<div style={ { gridColumn: '1 / -1' } }>
+				<InspectorControls group={ panel }>
+					<div
+						style={ {
+							gridColumn: '1 / -1',
+							// Match the 16px gap between items in other panels.
+							marginTop: panel === 'background' ? '16px' : 0,
+						} }
+					>
 						<SelectControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -203,6 +239,25 @@ const withPreview = createHigherOrderComponent(
 
 		if ( ! css || ! isSupported( props.name ) ) {
 			return <BlockListBlock { ...props } />;
+		}
+
+		const declarations = `backdrop-filter:${ css };-webkit-backdrop-filter:${ css }`;
+		const targets = targetsFor( props.name );
+
+		if ( targets.length ) {
+			return (
+				<>
+					<style>
+						{ targets
+							.map(
+								( target ) =>
+									`#block-${ props.clientId } ${ target }{${ declarations }}`
+							)
+							.join( '' ) }
+					</style>
+					<BlockListBlock { ...props } />
+				</>
+			);
 		}
 
 		return (

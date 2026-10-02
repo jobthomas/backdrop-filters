@@ -45,7 +45,33 @@ function backdrop_filters_css_value( $value ) {
 }
 
 /**
- * Adds the backdrop-filter style to the block wrapper at render time.
+ * Returns the class names or tag names of the elements that carry a block's
+ * background color, or an empty array when that is the wrapper.
+ *
+ * Blocks such as Button and Table put their background (and border radius)
+ * on an inner element, described by the selectors in block.json. The filter
+ * goes on the same element so it follows its shape.
+ *
+ * @param WP_Block_Type $block_type Block type.
+ * @return string[] Final simple selectors, e.g. '.wp-block-button__link' or 'table'.
+ */
+function backdrop_filters_targets( $block_type ) {
+	$skip = $block_type->supports['color']['__experimentalSkipSerialization'] ?? false;
+	if ( true !== $skip && ! in_array( 'background', (array) $skip, true ) ) {
+		return array();
+	}
+
+	$targets = array();
+	foreach ( explode( ',', wp_get_block_css_selector( $block_type, array( 'color', 'background' ), true ) ) as $selector ) {
+		$parts     = preg_split( '/[\s>+~]+/', trim( $selector ) );
+		$targets[] = end( $parts );
+	}
+
+	return $targets;
+}
+
+/**
+ * Adds the backdrop-filter style to the block at render time.
  *
  * Nothing is saved into post content, so deactivating the plugin leaves
  * every block valid. Blocks that support backdropFilter natively are left
@@ -70,16 +96,25 @@ function backdrop_filters_render_block( $block_content, $block ) {
 		return $block_content;
 	}
 
-	$tags = new WP_HTML_Tag_Processor( $block_content );
-	if ( ! $tags->next_tag() ) {
-		return $block_content;
+	$targets = $block_type ? backdrop_filters_targets( $block_type ) : array();
+	$tags    = new WP_HTML_Tag_Processor( $block_content );
+
+	while ( $tags->next_tag() ) {
+		$matches = ! $targets;
+		foreach ( $targets as $target ) {
+			$matches = $matches || ( '.' === $target[0] ? $tags->has_class( substr( $target, 1 ) ) : strtoupper( $target ) === $tags->get_tag() );
+		}
+
+		if ( $matches ) {
+			$style = $tags->get_attribute( 'style' );
+			$style = is_string( $style ) ? rtrim( trim( $style ), ';' ) : '';
+			$tags->set_attribute( 'style', ( '' === $style ? '' : $style . ';' ) . "-webkit-backdrop-filter:{$css};backdrop-filter:{$css}" );
+		}
+
+		if ( ! $targets ) {
+			break;
+		}
 	}
-
-	$style = $tags->get_attribute( 'style' );
-	$style = is_string( $style ) ? rtrim( trim( $style ), ';' ) : '';
-	$style = ( '' === $style ? '' : $style . ';' ) . "-webkit-backdrop-filter:{$css};backdrop-filter:{$css}";
-
-	$tags->set_attribute( 'style', $style );
 
 	return $tags->get_updated_html();
 }
