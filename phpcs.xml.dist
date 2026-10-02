@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Background Blur Control">
-	<file>./background-blur-control.php</file>
+<ruleset name="Backdrop Filters">
+	<file>./backdrop-filters.php</file>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
 	<config name="testVersion" value="7.4-"/>
@@ -10,14 +10,14 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="background-blur-control"/>
+				<element value="backdrop-filters"/>
 			</property>
 		</properties>
 	</rule>
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="background_blur_control"/>
+				<element value="backdrop_filters"/>
 			</property>
 		</properties>
 	</rule>

@@ -1,5 +1,5 @@
 {
-	"name": "jobthomas/background-blur-control",
+	"name": "jobthomas/backdrop-filters",
 	"description": "Backdrop blur setting for blocks with a semi-transparent background.",
 	"license": "GPL-2.0-or-later",
 	"require-dev": {

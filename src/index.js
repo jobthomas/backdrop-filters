@@ -1,156 +1,207 @@
 /**
- * Editor side of Background Blur Control.
+ * Adds a backdrop filter setting next to the background color of blocks.
  *
- * Adds a "Backdrop blur" control next to the background color setting of
- * supported blocks and previews the effect in the editor. The front-end style is added by PHP at
- * render time, so nothing extra is saved into post content.
+ * The value is stored in style.backdropFilter (the same place as the
+ * proposed core block support) and rendered by PHP, so nothing extra is
+ * saved into post content.
  */
 import { addFilter } from '@wordpress/hooks';
-import { getBlockSupport } from '@wordpress/blocks';
+import { getBlockSupport, hasBlockSupport } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { InspectorControls } from '@wordpress/block-editor';
-import { RangeControl } from '@wordpress/components';
+import { RangeControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-const settings = window.backgroundBlurControl || {};
-const SUPPORTED_BLOCKS = settings.blocks || [];
-const MAX_BLUR = settings.max || 50;
+const EFFECTS = {
+	blur: {
+		label: __( 'Blur', 'backdrop-filters' ),
+		unit: 'px',
+		max: 50,
+		initial: 10,
+	},
+	brightness: {
+		label: __( 'Brightness', 'backdrop-filters' ),
+		unit: '%',
+		max: 200,
+		initial: 70,
+	},
+	contrast: {
+		label: __( 'Contrast', 'backdrop-filters' ),
+		unit: '%',
+		max: 200,
+		initial: 150,
+	},
+	grayscale: {
+		label: __( 'Grayscale', 'backdrop-filters' ),
+		unit: '%',
+		max: 100,
+		initial: 100,
+	},
+	'hue-rotate': {
+		label: __( 'Hue', 'backdrop-filters' ),
+		unit: 'deg',
+		max: 360,
+		initial: 90,
+	},
+	invert: {
+		label: __( 'Invert', 'backdrop-filters' ),
+		unit: '%',
+		max: 100,
+		initial: 100,
+	},
+	saturate: {
+		label: __( 'Saturation', 'backdrop-filters' ),
+		unit: '%',
+		max: 300,
+		initial: 180,
+	},
+	sepia: {
+		label: __( 'Sepia', 'backdrop-filters' ),
+		unit: '%',
+		max: 100,
+		initial: 100,
+	},
+};
 
-const isSupported = ( name ) => SUPPORTED_BLOCKS.includes( name );
+// Blocks with a background color, unless core already handles the filter.
+const isSupported = ( name ) =>
+	hasBlockSupport( name, 'color' ) &&
+	getBlockSupport( name, [ 'color', 'background' ] ) !== false &&
+	! hasBlockSupport( name, 'backdropFilter' );
 
-// Blocks that support background gradients show background color in the
-// Background panel; the rest keep it in the Color panel. Put the control
-// next to wherever background color is.
+// Blocks with background gradients show background color in the Background
+// panel; the rest keep it in the Color panel.
 const panelFor = ( name ) =>
 	getBlockSupport( name, [ 'background', 'gradient' ] )
 		? 'background'
 		: 'color';
 
-const blurStyle = ( blur ) => ( {
-	backdropFilter: `blur(${ blur }px)`,
-	WebkitBackdropFilter: `blur(${ blur }px)`,
-} );
+// Same whitelist as the PHP renderer, so the preview matches the front end.
+const NUMBER = '\\d{1,3}(?:\\.\\d{1,2})?';
+const FUNCTION = `(?:blur\\(${ NUMBER }px\\)|(?:brightness|contrast|grayscale|invert|opacity|saturate|sepia)\\(${ NUMBER }%\\)|hue-rotate\\(-?${ NUMBER }deg\\))`;
+const VALID = new RegExp( `^${ FUNCTION }(?: ${ FUNCTION })*$` );
+const PRESET = /^var:preset\|backdrop-filter\|([a-z0-9-]+)$/;
 
-addFilter(
-	'blocks.registerBlockType',
-	'background-blur-control/add-attribute',
-	( blockSettings, name ) => {
-		if ( ! isSupported( name ) ) {
-			return blockSettings;
-		}
-
-		const attributes = {
-			...blockSettings.attributes,
-			backgroundBlur: {
-				type: 'number',
-				default: 0,
-			},
-		};
-
-		// Version 1.0.0 saved the blur as an inline style. This deprecation
-		// recognises that markup so those blocks migrate without a recovery
-		// prompt. The marker attribute exists only on this deprecation, so the
-		// extraProps filter below can tell a legacy save from a current one.
-		const legacy = {
-			attributes: {
-				...attributes,
-				backgroundBlurLegacy: { type: 'boolean', default: true },
-			},
-			supports: blockSettings.supports,
-			save: blockSettings.save,
-			migrate: ( { backgroundBlurLegacy, ...rest } ) => rest,
-		};
-
-		return {
-			...blockSettings,
-			attributes,
-			deprecated: [ legacy, ...( blockSettings.deprecated || [] ) ],
-		};
+const toCSS = ( value ) => {
+	if ( typeof value !== 'string' ) {
+		return undefined;
 	}
-);
-
-addFilter(
-	'blocks.getSaveContent.extraProps',
-	'background-blur-control/legacy-save',
-	( props, blockType, attributes ) => {
-		if (
-			! attributes.backgroundBlurLegacy ||
-			! attributes.backgroundBlur
-		) {
-			return props;
-		}
-
-		return {
-			...props,
-			style: {
-				...props.style,
-				...blurStyle( attributes.backgroundBlur ),
-			},
-		};
+	if ( PRESET.test( value ) ) {
+		return value.replace(
+			PRESET,
+			'var(--wp--preset--backdrop-filter--$1)'
+		);
 	}
-);
+	return VALID.test( value ) ? value : undefined;
+};
 
-const withBlurControl = createHigherOrderComponent(
+const withControl = createHigherOrderComponent(
 	( BlockEdit ) => ( props ) => {
 		const { name, attributes, setAttributes, isSelected } = props;
 
-		if ( ! isSupported( name ) ) {
+		if ( ! isSelected || ! isSupported( name ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
-		const blur = attributes.backgroundBlur || 0;
+		const stored = attributes.style?.backdropFilter;
+		const value = typeof stored === 'string' ? stored : undefined;
+		const [ , fn, amount ] =
+			/^([a-z-]+)\(([\d.]+)[a-z%]*\)$/.exec( value ?? '' ) ?? [];
+		const effect = EFFECTS[ fn ];
+		const isCustom = !! value && ! effect;
+
+		const update = ( backdropFilter ) => {
+			const { backdropFilter: _, ...style } = attributes.style ?? {};
+			const next = backdropFilter ? { ...style, backdropFilter } : style;
+			setAttributes( {
+				style: Object.keys( next ).length ? next : undefined,
+			} );
+		};
 
 		return (
 			<>
 				<BlockEdit { ...props } />
-				{ isSelected && (
-					<InspectorControls group={ panelFor( name ) }>
-						<div
-							className="background-blur-control"
-							style={ { gridColumn: '1 / -1', marginTop: '8px' } }
-						>
-							<RangeControl
-								__nextHasNoMarginBottom
-								__next40pxDefaultSize
-								label={ __(
-									'Backdrop blur',
-									'background-blur-control'
-								) }
-								help={ __(
-									'Blurs whatever sits behind the block. Works best with a semi-transparent background color.',
-									'background-blur-control'
-								) }
-								value={ blur }
-								onChange={ ( value ) =>
-									setAttributes( {
-										backgroundBlur: value || 0,
+				<InspectorControls group={ panelFor( name ) }>
+					<div style={ { gridColumn: '1 / -1' } }>
+						<SelectControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __(
+								'Backdrop filter',
+								'backdrop-filters'
+							) }
+							help={
+								isCustom
+									? value
+									: __(
+											'Filters whatever sits behind the block. Needs a semi-transparent background.',
+											'backdrop-filters'
+										)
+							}
+							value={ isCustom ? 'custom' : ( fn ?? '' ) }
+							options={ [
+								{
+									label: __( 'None', 'backdrop-filters' ),
+									value: '',
+								},
+								...( isCustom
+									? [
+											{
+												label: __(
+													'Custom',
+													'backdrop-filters'
+												),
+												value: 'custom',
+												disabled: true,
+											},
+										]
+									: [] ),
+								...Object.entries( EFFECTS ).map(
+									( [ key, { label } ] ) => ( {
+										label,
+										value: key,
 									} )
-								}
+								),
+							] }
+							onChange={ ( key ) =>
+								update(
+									key &&
+										`${ key }(${ EFFECTS[ key ].initial }${ EFFECTS[ key ].unit })`
+								)
+							}
+						/>
+						{ effect && (
+							<RangeControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								label={ __( 'Amount', 'backdrop-filters' ) }
+								value={ Number( amount ) }
 								min={ 0 }
-								max={ MAX_BLUR }
-								step={ 1 }
+								max={ effect.max }
+								onChange={ ( next ) =>
+									update(
+										`${ fn }(${ next ?? 0 }${
+											effect.unit
+										})`
+									)
+								}
 							/>
-						</div>
-					</InspectorControls>
-				) }
+						) }
+					</div>
+				</InspectorControls>
 			</>
 		);
 	},
-	'withBlurControl'
+	'withBackdropFilterControl'
 );
 
-addFilter(
-	'editor.BlockEdit',
-	'background-blur-control/with-blur-control',
-	withBlurControl
-);
+addFilter( 'editor.BlockEdit', 'backdrop-filters/control', withControl );
 
-const withEditorBlurStyles = createHigherOrderComponent(
+const withPreview = createHigherOrderComponent(
 	( BlockListBlock ) => ( props ) => {
-		const { name, attributes, wrapperProps } = props;
-		const blur = attributes?.backgroundBlur;
+		const css = toCSS( props.attributes?.style?.backdropFilter );
 
-		if ( ! isSupported( name ) || ! blur ) {
+		if ( ! css || ! isSupported( props.name ) ) {
 			return <BlockListBlock { ...props } />;
 		}
 
@@ -158,17 +209,17 @@ const withEditorBlurStyles = createHigherOrderComponent(
 			<BlockListBlock
 				{ ...props }
 				wrapperProps={ {
-					...wrapperProps,
-					style: { ...wrapperProps?.style, ...blurStyle( blur ) },
+					...props.wrapperProps,
+					style: {
+						...props.wrapperProps?.style,
+						backdropFilter: css,
+						WebkitBackdropFilter: css,
+					},
 				} }
 			/>
 		);
 	},
-	'withEditorBlurStyles'
+	'withBackdropFilterPreview'
 );
 
-addFilter(
-	'editor.BlockListBlock',
-	'background-blur-control/with-editor-blur-styles',
-	withEditorBlurStyles
-);
+addFilter( 'editor.BlockListBlock', 'backdrop-filters/preview', withPreview );

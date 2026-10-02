@@ -1,16 +1,16 @@
 {
-	"name": "background-blur-control",
-	"version": "1.1.0",
-	"description": "Backdrop blur setting for blocks with a semi-transparent background.",
+	"name": "backdrop-filters",
+	"version": "1.0.0",
+	"description": "Backdrop filters (blur, brightness, contrast, grayscale, hue, invert, saturation, sepia) for blocks.",
 	"author": "Job Thomas",
 	"license": "GPL-2.0-or-later",
-	"homepage": "https://github.com/jobthomas/background-blur-control",
+	"homepage": "https://github.com/jobthomas/backdrop-filters",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/jobthomas/background-blur-control.git"
+		"url": "https://github.com/jobthomas/backdrop-filters.git"
 	},
 	"files": [
-		"background-blur-control.php",
+		"backdrop-filters.php",
 		"readme.txt",
 		"build"
 	],
@@ -21,7 +21,12 @@
 		"plugin-zip": "wp-scripts plugin-zip"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^30.0.0",
-		"typescript": "^5.9.3"
+		"@wordpress/block-editor": "^18.0.0",
+		"@wordpress/blocks": "^16.1.0",
+		"@wordpress/components": "^41.0.0",
+		"@wordpress/compose": "^8.9.0",
+		"@wordpress/hooks": "^4.56.0",
+		"@wordpress/i18n": "^6.29.0",
+		"@wordpress/scripts": "^36.0.0"
 	}
 }

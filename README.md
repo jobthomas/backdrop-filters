@@ -1,8 +1,8 @@
-# Background Blur Control
+# Backdrop Filters
 
-A WordPress plugin that adds a **Backdrop blur** setting next to the background color of core blocks. Give a block a semi-transparent background, set a blur, and whatever sits behind it gets frosted.
+A WordPress plugin that adds a **Backdrop filter** setting (blur, brightness, contrast, grayscale, hue, invert, saturation, sepia) next to the background color of blocks.
 
-The blur is added when the page renders (`render_block`), so nothing extra is saved into post content and deactivating the plugin leaves every block valid.
+The value is stored in `style.backdropFilter`, the same attribute as the proposed core block support ([WordPress/gutenberg#77738](https://github.com/WordPress/gutenberg/pull/77738)). The plugin adds the style when the page renders (`render_block`), so nothing extra is saved into post content, and it steps aside for any block that supports `backdropFilter` natively.
 
 ## Development
 
@@ -12,7 +12,7 @@ npm run build        # build/index.js
 npm run lint:js
 composer install
 composer lint        # WordPress Coding Standards + PHP 7.4 compatibility
-npm run plugin-zip   # background-blur-control.zip for WordPress.org
+npm run plugin-zip   # backdrop-filters.zip for WordPress.org
 ```
 
 Source for the editor script is in `src/`. The WordPress.org readme is `readme.txt`.
