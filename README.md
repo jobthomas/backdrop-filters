@@ -15,7 +15,7 @@ composer lint        # WordPress Coding Standards + PHP 7.4 compatibility
 npm run plugin-zip   # backdrop-filters.zip for WordPress.org
 ```
 
-Source for the editor script is in `src/`. The WordPress.org readme is `readme.txt`.
+Source for the editor script is in `src/`. The WordPress.org readme is `readme.txt`, and the listing screenshots (which go in the SVN `assets/` folder, not the plugin zip) are in `.wordpress-org/`.
 
 ## License
 

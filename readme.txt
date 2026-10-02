@@ -45,6 +45,17 @@ It uses the CSS `backdrop-filter` property, which current versions of Chrome, Ed
 
 Large blur values on big areas can cost rendering time on low-powered devices. Blur values up to about 20px are usually plenty.
 
+== Screenshots ==
+
+1. `blur(50px)`: Blur at its maximum. How the sea looks before my first coffee.
+2. `brightness(200%)`: Brightness at its maximum. Someone opened the curtains.
+3. `contrast(200%)`: Contrast at its maximum. The sea, but it has opinions now.
+4. `grayscale(100%)`: Grayscale at its maximum. A very serious photo of the sea.
+5. `hue-rotate(180deg)`: Hue turned halfway round the color wheel (a full 360deg turn looks the same as none).
+6. `invert(100%)`: Invert at its maximum. The sea from the Upside Down.
+7. `saturate(300%)`: Saturation at its maximum. The holiday brochure version.
+8. `sepia(100%)`: Sepia at its maximum. Grandpa's slides from 1974.
+
 == Changelog ==
 
 = 1.0.0 =
