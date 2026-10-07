@@ -18,7 +18,11 @@
 		"build": "wp-scripts build",
 		"start": "wp-scripts start",
 		"lint:js": "wp-scripts lint-js src",
-		"plugin-zip": "wp-scripts plugin-zip"
+		"plugin-zip": "wp-scripts plugin-zip",
+		"test:prepare": "npm run plugin-zip && rm -rf tests/compat/.plugin && unzip -qo backdrop-filters.zip -d tests/compat/.plugin",
+		"test:compat": "npm run test:prepare && node tests/compat/run.mjs tests/compat/matrix.json",
+		"test:security": "npm run test:prepare && node tests/security.mjs",
+		"test:plugin-check": "npm run test:prepare && node tests/compat/plugin-check.mjs"
 	},
 	"devDependencies": {
 		"@wordpress/block-editor": "^18.0.0",
@@ -27,6 +31,7 @@
 		"@wordpress/compose": "^8.9.0",
 		"@wordpress/hooks": "^4.56.0",
 		"@wordpress/i18n": "^6.29.0",
-		"@wordpress/scripts": "^36.0.0"
+		"@wordpress/scripts": "^36.0.0",
+		"puppeteer-core": "^25.12.0"
 	}
 }

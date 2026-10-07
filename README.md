@@ -15,6 +15,14 @@ composer lint        # WordPress Coding Standards + PHP 7.4 compatibility
 npm run plugin-zip   # backdrop-filters.zip for WordPress.org
 ```
 
+Before a release, run the tests (they start throwaway WordPress Playground sites and need Google Chrome; set `CHROME_PATH` if it isn't in the default macOS location):
+
+```bash
+npm run test:security       # injection fuzz suite, WordPress 6.6 on PHP 7.4
+npm run test:compat         # WordPress 6.6 to 7.1 plus popular plugins; ~10 minutes
+npm run test:plugin-check   # the WordPress.org Plugin Check, all categories
+```
+
 Source for the editor script is in `src/`. The WordPress.org readme is `readme.txt`, and the listing screenshots (which go in the SVN `assets/` folder, not the plugin zip) are in `.wordpress-org/`.
 
 ## License

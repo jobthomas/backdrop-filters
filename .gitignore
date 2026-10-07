@@ -2,3 +2,7 @@ node_modules/
 build/
 vendor/
 *.zip
+tests/compat/.plugin/
+tests/compat/out/
+tests/compat/*.blueprint.json
+tests/compat/*.force-active.php
