@@ -215,8 +215,11 @@ add_action( 'template_redirect', function () {
 		for ( let tries = 0; tries < 4; tries++ ) {
 			await page.goto( base + '/wp-admin/post-new.php', { waitUntil: 'domcontentloaded', timeout: 180000 } );
 			if ( await page.$( '#user_login' ) ) {
-				await page.type( '#user_login', 'admin' );
-				await page.type( '#user_pass', 'password' );
+				// Set the fields directly: after a failed attempt WordPress pre-fills the username.
+				await page.evaluate( () => {
+					document.querySelector( '#user_login' ).value = 'admin';
+					document.querySelector( '#user_pass' ).value = 'password';
+				} );
 				await Promise.all( [ page.waitForNavigation( { timeout: 120000 } ).catch( () => {} ), page.click( '#wp-submit' ) ] );
 				continue;
 			}

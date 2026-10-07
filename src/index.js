@@ -216,21 +216,17 @@ const withPreview = createHigherOrderComponent(
 		const targets = TARGETS[ props.name ] ?? [];
 
 		if ( targets.length ) {
+			// Scope each block.json selector to this block: its first part is
+			// the block wrapper, e.g. "#block-1.wp-block-search .wp-block-search__input".
+			const id = `#block-${ props.clientId }`;
+			const selector = targets
+				.map( ( part ) =>
+					part.startsWith( '.' ) ? id + part : `${ id } ${ part }`
+				)
+				.join( ',' );
 			return (
 				<>
-					<style>
-						{ targets
-							.map(
-								( target ) =>
-									`#block-${ props.clientId } ${ target }${
-										// The target can be the wrapper itself (Search before WordPress 7.1).
-										target.startsWith( '.' )
-											? `,#block-${ props.clientId }${ target }`
-											: ''
-									}{${ declarations }}`
-							)
-							.join( '' ) }
-					</style>
+					<style>{ `${ selector }{${ declarations }}` }</style>
 					<BlockListBlock { ...props } />
 				</>
 			);
