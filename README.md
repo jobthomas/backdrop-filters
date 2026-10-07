@@ -2,7 +2,7 @@
 
 A WordPress plugin that adds a **Backdrop filter** setting (blur, brightness, contrast, grayscale, hue, invert, saturation, sepia) next to the background color of blocks.
 
-The value is stored in `style.backdropFilter`, the same attribute as the proposed core block support ([WordPress/gutenberg#77738](https://github.com/WordPress/gutenberg/pull/77738)). The plugin adds the style when the page renders (`render_block`), so nothing extra is saved into post content, and it steps aside for any block that supports `backdropFilter` natively.
+The value is stored in the block's `style.backdropFilter` attribute. The plugin adds the style when the page renders (`render_block`), so nothing extra is saved into post content, and it steps aside for any block that supports `backdropFilter` natively.
 
 ## Development
 

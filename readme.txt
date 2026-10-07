@@ -21,7 +21,7 @@ Filters: Blur, Brightness, Contrast, Grayscale, Hue, Invert, Saturation and Sepi
 * Adds the style when the page renders and saves nothing extra into your post content. If you deactivate the plugin, your blocks stay valid and simply lose the filter.
 * No settings page, no front-end scripts, no data stored.
 
-The value is stored in the block's `style.backdropFilter`, the same place as the backdrop-filter block support proposed for WordPress core. When a block supports that natively, the plugin steps aside and lets core handle it. Theme presets defined as `var:preset|backdrop-filter|{slug}` are also rendered.
+Blocks that already support backdrop filters natively are left alone. Theme presets referenced as `var:preset|backdrop-filter|{slug}` are rendered too.
 
 Source code and issues: [github.com/jobthomas/backdrop-filters](https://github.com/jobthomas/backdrop-filters).
 

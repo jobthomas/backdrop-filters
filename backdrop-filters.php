@@ -75,7 +75,7 @@ function backdrop_filters_targets( $block_type ) {
  *
  * Nothing is saved into post content, so deactivating the plugin leaves
  * every block valid. Blocks that support backdropFilter natively are left
- * to core.
+ * alone.
  *
  * @param string $block_content Rendered block HTML.
  * @param array  $block         Parsed block.
@@ -133,6 +133,17 @@ function backdrop_filters_enqueue_editor_assets() {
 		$asset['version'],
 		true
 	);
+
+	// The editor needs the same inner-element targets for its preview, and
+	// older WordPress versions do not expose block selectors client-side.
+	$targets = array();
+	foreach ( WP_Block_Type_Registry::get_instance()->get_all_registered() as $name => $block_type ) {
+		$found = backdrop_filters_targets( $block_type );
+		if ( $found ) {
+			$targets[ $name ] = $found;
+		}
+	}
+	wp_add_inline_script( 'backdrop-filters', 'window.backdropFilters = ' . wp_json_encode( array( 'targets' => $targets ) ) . ';', 'before' );
 
 	wp_set_script_translations( 'backdrop-filters', 'backdrop-filters' );
 }

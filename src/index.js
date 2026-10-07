@@ -1,16 +1,11 @@
 /**
  * Adds a backdrop filter setting next to the background color of blocks.
  *
- * The value is stored in style.backdropFilter (the same place as the
- * proposed core block support) and rendered by PHP, so nothing extra is
- * saved into post content.
+ * The value is stored in style.backdropFilter and rendered by PHP, so
+ * nothing extra is saved into post content.
  */
 import { addFilter } from '@wordpress/hooks';
-import {
-	getBlockSupport,
-	getBlockType,
-	hasBlockSupport,
-} from '@wordpress/blocks';
+import { getBlockSupport, hasBlockSupport } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { InspectorControls, useSettings } from '@wordpress/block-editor';
 import { RangeControl, SelectControl } from '@wordpress/components';
@@ -67,40 +62,16 @@ const EFFECTS = {
 	},
 };
 
-// Blocks with a background color, unless core already handles the filter.
+// Blocks with a background color, unless the block supports the filter natively.
 const isSupported = ( name ) =>
 	hasBlockSupport( name, 'color' ) &&
 	getBlockSupport( name, [ 'color', 'background' ] ) !== false &&
 	! hasBlockSupport( name, 'backdropFilter' );
 
 // Blocks such as Button and Table put their background (and border radius)
-// on an inner element, described by the selectors in block.json. Returns the
-// final simple selectors of those elements, or [] when it is the wrapper.
-const targetsFor = ( name ) => {
-	const type = getBlockType( name );
-	const skip = type?.supports?.color?.__experimentalSkipSerialization;
-	if ( skip !== true && ! skip?.includes?.( 'background' ) ) {
-		return [];
-	}
-	const { selectors = {} } = type;
-	const selector =
-		selectors.color?.background ??
-		( typeof selectors.color === 'string'
-			? selectors.color
-			: selectors.color?.root ) ??
-		selectors.root ??
-		type.__experimentalSelector ??
-		'';
-	return selector
-		.split( ',' )
-		.map( ( part ) =>
-			part
-				.trim()
-				.split( /[\s>+~]+/ )
-				.pop()
-		)
-		.filter( Boolean );
-};
+// on an inner element. PHP works these out from block.json selectors and
+// passes them in, so the preview and the front end target the same element.
+const TARGETS = window.backdropFilters?.targets ?? {};
 
 // Same whitelist as the PHP renderer, so the preview matches the front end.
 const NUMBER = '\\d{1,3}(?:\\.\\d{1,2})?';
@@ -242,7 +213,7 @@ const withPreview = createHigherOrderComponent(
 		}
 
 		const declarations = `backdrop-filter:${ css };-webkit-backdrop-filter:${ css }`;
-		const targets = targetsFor( props.name );
+		const targets = TARGETS[ props.name ] ?? [];
 
 		if ( targets.length ) {
 			return (
@@ -251,7 +222,12 @@ const withPreview = createHigherOrderComponent(
 						{ targets
 							.map(
 								( target ) =>
-									`#block-${ props.clientId } ${ target }{${ declarations }}`
+									`#block-${ props.clientId } ${ target }${
+										// The target can be the wrapper itself (Search before WordPress 7.1).
+										target.startsWith( '.' )
+											? `,#block-${ props.clientId }${ target }`
+											: ''
+									}{${ declarations }}`
 							)
 							.join( '' ) }
 					</style>
