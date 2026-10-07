@@ -12,7 +12,9 @@ Blur, tint and recolor whatever sits behind a block, right next to its backgroun
 
 == Description ==
 
-Give a block a semi-transparent background color, then pick a **Backdrop filter** just below it and set the amount. Whatever sits behind the block (a cover image, a photo, scrolling content) is filtered, giving frosted glass, dimmed, black-and-white or tinted looks.
+Select a block that sits on top of something, such as a cover image, a photo or scrolling content. Pick a **Backdrop filter** just below its background color setting and set the amount. Whatever is behind the block gets filtered, giving frosted glass, dimmed, black-and-white or tinted looks.
+
+The block doesn't need a background color of its own. Leave it empty to see the filter on its own, or add a semi-transparent color to tint it.
 
 Filters: Blur, Brightness, Contrast, Grayscale, Hue, Invert, Saturation and Sepia.
 
@@ -29,13 +31,13 @@ Source code and issues: [github.com/jobthomas/backdrop-filters](https://github.c
 
 1. Install from Plugins → Add New, or upload the plugin folder to `/wp-content/plugins/`.
 2. Activate it.
-3. Select a block, give it a semi-transparent background color, then choose a **Backdrop filter** and amount just below the color setting.
+3. Select a block that sits on top of an image or other content, then choose a **Backdrop filter** and amount just below its background color setting.
 
 == Frequently Asked Questions ==
 
 = I picked a filter but nothing changes =
 
-A backdrop filter only shows through a background that is at least partly transparent. Pick a background color with reduced opacity, and make sure something sits behind the block.
+A backdrop filter changes what is visible behind the block, so something has to sit behind it, such as a cover image or a photo. A fully opaque background color also hides the effect: leave the background empty or make it semi-transparent.
 
 = Does it work in every browser? =
 

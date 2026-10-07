@@ -141,7 +141,7 @@ const withControl = createHigherOrderComponent(
 								isCustom
 									? value
 									: __(
-											'Filters whatever sits behind the block. Needs a semi-transparent background.',
+											'Filters whatever sits behind the block. A fully opaque background hides it.',
 											'backdrop-filters'
 										)
 							}
