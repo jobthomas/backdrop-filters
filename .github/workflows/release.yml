@@ -1,0 +1,64 @@
+# Builds the plugin and releases it.
+#
+# Push a version tag (e.g. 1.0.1) to publish a GitHub release with the built
+# zip, and, once the SVN_USERNAME and SVN_PASSWORD secrets exist, deploy the
+# same files and the .wordpress-org assets to the WordPress.org directory.
+# Run it by hand from the Actions tab to only build the zip.
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check the tag matches the plugin version
+        if: github.ref_type == 'tag'
+        run: |
+          header=$(sed -n 's/^ \* Version: *//p' backdrop-filters.php)
+          stable=$(sed -n 's/^Stable tag: *//p' readme.txt)
+          echo "Tag ${GITHUB_REF_NAME}, plugin header ${header}, readme Stable tag ${stable}"
+          [ "$GITHUB_REF_NAME" = "$header" ] && [ "$GITHUB_REF_NAME" = "$stable" ]
+
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+          npm run plugin-zip
+          unzip -q backdrop-filters.zip -d dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backdrop-filters
+          path: dist
+
+      - name: Publish GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" backdrop-filters.zip --title "$GITHUB_REF_NAME" --generate-notes
+
+      - name: Deploy to WordPress.org
+        if: github.ref_type == 'tag' && env.SVN_PASSWORD != ''
+        uses: 10up/action-wordpress-plugin-deploy@2.3.0
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: backdrop-filters
+          BUILD_DIR: dist/backdrop-filters
