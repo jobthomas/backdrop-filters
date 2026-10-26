@@ -25,7 +25,7 @@ Filters: Blur, Brightness, Contrast, Grayscale, Hue, Invert, Saturation and Sepi
 
 Blocks that already support backdrop filters natively are left alone. Theme presets referenced as `var:preset|backdrop-filter|{slug}` are rendered too.
 
-Source code and issues: [github.com/jobthomas/backdrop-filters](https://github.com/jobthomas/backdrop-filters).
+Source code and issues: [github.com/jobthomas/backdrop-filters](https://github.com/jobthomas/backdrop-filters). The editor script in `build/` is minified; its unminified source is in `src/` in that repository, built with `@wordpress/scripts` (`npm install && npm run build`).
 
 == Installation ==
 
