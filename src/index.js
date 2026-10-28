@@ -13,49 +13,49 @@ import { __ } from '@wordpress/i18n';
 
 const EFFECTS = {
 	blur: {
-		label: __( 'Blur', 'backdrop-filters' ),
+		label: __( 'Blur', 'glass-act' ),
 		unit: 'px',
 		max: 50,
 		initial: 10,
 	},
 	brightness: {
-		label: __( 'Brightness', 'backdrop-filters' ),
+		label: __( 'Brightness', 'glass-act' ),
 		unit: '%',
 		max: 200,
 		initial: 70,
 	},
 	contrast: {
-		label: __( 'Contrast', 'backdrop-filters' ),
+		label: __( 'Contrast', 'glass-act' ),
 		unit: '%',
 		max: 200,
 		initial: 150,
 	},
 	grayscale: {
-		label: __( 'Grayscale', 'backdrop-filters' ),
+		label: __( 'Grayscale', 'glass-act' ),
 		unit: '%',
 		max: 100,
 		initial: 100,
 	},
 	'hue-rotate': {
-		label: __( 'Hue', 'backdrop-filters' ),
+		label: __( 'Hue', 'glass-act' ),
 		unit: 'deg',
 		max: 360,
 		initial: 90,
 	},
 	invert: {
-		label: __( 'Invert', 'backdrop-filters' ),
+		label: __( 'Invert', 'glass-act' ),
 		unit: '%',
 		max: 100,
 		initial: 100,
 	},
 	saturate: {
-		label: __( 'Saturation', 'backdrop-filters' ),
+		label: __( 'Saturation', 'glass-act' ),
 		unit: '%',
 		max: 300,
 		initial: 180,
 	},
 	sepia: {
-		label: __( 'Sepia', 'backdrop-filters' ),
+		label: __( 'Sepia', 'glass-act' ),
 		unit: '%',
 		max: 100,
 		initial: 100,
@@ -71,7 +71,7 @@ const isSupported = ( name ) =>
 // Blocks such as Button and Table put their background (and border radius)
 // on an inner element. PHP works these out from block.json selectors and
 // passes them in, so the preview and the front end target the same element.
-const TARGETS = window.backdropFilters?.targets ?? {};
+const TARGETS = window.glassAct?.targets ?? {};
 
 // Same whitelist as the PHP renderer, so the preview matches the front end.
 const NUMBER = '\\d{1,3}(?:\\.\\d{1,2})?';
@@ -135,20 +135,20 @@ const withControl = createHigherOrderComponent(
 							__nextHasNoMarginBottom
 							label={ __(
 								'Backdrop filter',
-								'backdrop-filters'
+								'glass-act'
 							) }
 							help={
 								isCustom
 									? value
 									: __(
 											'Filters whatever sits behind the block. A fully opaque background hides it.',
-											'backdrop-filters'
+											'glass-act'
 										)
 							}
 							value={ isCustom ? 'custom' : ( fn ?? '' ) }
 							options={ [
 								{
-									label: __( 'None', 'backdrop-filters' ),
+									label: __( 'None', 'glass-act' ),
 									value: '',
 								},
 								...( isCustom
@@ -156,7 +156,7 @@ const withControl = createHigherOrderComponent(
 											{
 												label: __(
 													'Custom',
-													'backdrop-filters'
+													'glass-act'
 												),
 												value: 'custom',
 												disabled: true,
@@ -181,7 +181,7 @@ const withControl = createHigherOrderComponent(
 							<RangeControl
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom
-								label={ __( 'Amount', 'backdrop-filters' ) }
+								label={ __( 'Amount', 'glass-act' ) }
 								value={ Number( amount ) }
 								min={ 0 }
 								max={ effect.max }
@@ -202,7 +202,7 @@ const withControl = createHigherOrderComponent(
 	'withBackdropFilterControl'
 );
 
-addFilter( 'editor.BlockEdit', 'backdrop-filters/control', withControl );
+addFilter( 'editor.BlockEdit', 'glass-act/control', withControl );
 
 const withPreview = createHigherOrderComponent(
 	( BlockListBlock ) => ( props ) => {
@@ -249,4 +249,4 @@ const withPreview = createHigherOrderComponent(
 	'withBackdropFilterPreview'
 );
 
-addFilter( 'editor.BlockListBlock', 'backdrop-filters/preview', withPreview );
+addFilter( 'editor.BlockListBlock', 'glass-act/preview', withPreview );

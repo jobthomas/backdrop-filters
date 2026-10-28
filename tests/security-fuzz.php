@@ -1,5 +1,5 @@
 <?php
-// Security fuzz suite for Backdrop Filters. Run inside WordPress (Playground runPHP); writes /out/sec.txt.
+// Security fuzz suite for Glass Act. Run inside WordPress (Playground runPHP); writes /out/sec.txt.
 require '/wordpress/wp-load.php';
 $cases = array(
 	array( 'blur(12px)', true ), array( 'blur(12.5px) saturate(150%)', true ), array( 'hue-rotate(-90deg)', true ),
@@ -24,7 +24,7 @@ foreach ( $cases as $c ) {
 	$fail += $ok ? 0 : 1;
 	$out  .= ( $ok ? 'PASS ' : 'FAIL ' ) . substr( var_export( is_string( $c[0] ) ? substr( $c[0], 0, 50 ) : $c[0], true ), 0, 60 ) . "\n";
 }
-$t = microtime( true ); backdrop_filters_css_value( str_repeat( 'blur(1px) ', 19 ) . 'blur(1px' ); $out .= sprintf( "regex time on near-miss: %.3fms\n", ( microtime( true ) - $t ) * 1000 );
+$t = microtime( true ); glass_act_css_value( str_repeat( 'blur(1px) ', 19 ) . 'blur(1px' ); $out .= sprintf( "regex time on near-miss: %.3fms\n", ( microtime( true ) - $t ) * 1000 );
 $b = parse_blocks( '<!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button {"style":{"backdropFilter":"blur(4px);color:red"}} --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button">Go</a></div><!-- /wp:button --><!-- wp:button {"style":{"backdropFilter":"blur(4px)"}} --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button">Go</a></div><!-- /wp:button --></div><!-- /wp:buttons -->' );
 $out .= 'buttons: ' . render_block( $b[0] ) . "\n";
 $out .= "PHP " . PHP_VERSION . ", WP " . get_bloginfo( 'version' ) . "\nFAILURES: $fail of " . count( $cases ) . "\n";

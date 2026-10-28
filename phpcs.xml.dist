@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Backdrop Filters">
-	<file>./backdrop-filters.php</file>
+<ruleset name="Glass Act">
+	<file>./glass-act.php</file>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
 	<config name="testVersion" value="7.4-"/>
@@ -10,14 +10,14 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="backdrop-filters"/>
+				<element value="glass-act"/>
 			</property>
 		</properties>
 	</rule>
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="backdrop_filters"/>
+				<element value="glass_act"/>
 			</property>
 		</properties>
 	</rule>

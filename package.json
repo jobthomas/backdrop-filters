@@ -1,16 +1,16 @@
 {
-	"name": "backdrop-filters",
+	"name": "glass-act",
 	"version": "1.0.0",
 	"description": "Backdrop filters (blur, brightness, contrast, grayscale, hue, invert, saturation, sepia) for blocks.",
 	"author": "Job Thomas",
 	"license": "GPL-2.0-or-later",
-	"homepage": "https://github.com/jobthomas/backdrop-filters",
+	"homepage": "https://github.com/jobthomas/glass-act",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/jobthomas/backdrop-filters.git"
+		"url": "https://github.com/jobthomas/glass-act.git"
 	},
 	"files": [
-		"backdrop-filters.php",
+		"glass-act.php",
 		"readme.txt",
 		"build"
 	],
@@ -19,7 +19,7 @@
 		"start": "wp-scripts start",
 		"lint:js": "wp-scripts lint-js src",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"test:prepare": "npm run plugin-zip && rm -rf tests/compat/.plugin && unzip -qo backdrop-filters.zip -d tests/compat/.plugin",
+		"test:prepare": "npm run plugin-zip && rm -rf tests/compat/.plugin && unzip -qo glass-act.zip -d tests/compat/.plugin",
 		"test:compat": "npm run test:prepare && node tests/compat/run.mjs tests/compat/matrix.json",
 		"test:security": "npm run test:prepare && node tests/security.mjs",
 		"test:plugin-check": "npm run test:prepare && node tests/compat/plugin-check.mjs"

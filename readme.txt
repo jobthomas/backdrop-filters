@@ -1,4 +1,4 @@
-=== Backdrop Filters ===
+=== Glass Act – Backdrop Filters for Blocks ===
 Contributors: jobthomas
 Tags: backdrop-filter, blur, glassmorphism, block editor, background
 Requires at least: 6.6
@@ -25,7 +25,7 @@ Filters: Blur, Brightness, Contrast, Grayscale, Hue, Invert, Saturation and Sepi
 
 Blocks that already support backdrop filters natively are left alone. Theme presets referenced as `var:preset|backdrop-filter|{slug}` are rendered too.
 
-Source code and issues: [github.com/jobthomas/backdrop-filters](https://github.com/jobthomas/backdrop-filters). The editor script in `build/` is minified; its unminified source is in `src/` in that repository, built with `@wordpress/scripts` (`npm install && npm run build`).
+Source code and issues: [github.com/jobthomas/glass-act](https://github.com/jobthomas/glass-act). The editor script in `build/` is minified; its unminified source is in `src/` in that repository, built with `@wordpress/scripts` (`npm install && npm run build`).
 
 == Installation ==
 

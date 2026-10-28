@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import puppeteer from 'puppeteer-core';
 
 const DIR = new URL( '.', import.meta.url ).pathname;
-const PLUGIN = DIR + '.plugin/backdrop-filters';
+const PLUGIN = DIR + '.plugin/glass-act';
 const OUT = DIR + 'out';
 fs.mkdirSync( OUT, { recursive: true } );
 fs.rmSync( OUT + '/results.jsonl', { force: true } );
@@ -156,18 +156,18 @@ for ( let attempt = 1; attempt <= 2; attempt++ ) {
 		{ step: 'defineWpConfigConsts', consts: { WP_DEBUG: true, WP_DEBUG_LOG: '/out/' + name + '-debug.log', WP_DEBUG_DISPLAY: false } },
 		...( sc.plugins || [] ).map( ( slug ) => ( { step: 'installPlugin', pluginData: { resource: 'wordpress.org/plugins', slug }, options: { activate: false } } ) ),
 		...( sc.theme ? [ { step: 'installTheme', themeData: { resource: 'wordpress.org/themes', slug: sc.theme }, options: { activate: true } } ] : [] ),
-		{ step: 'activatePlugin', pluginPath: 'backdrop-filters/backdrop-filters.php' },
+		{ step: 'activatePlugin', pluginPath: 'glass-act/glass-act.php' },
 		{ step: 'runPHP', code: ACTIVATE.replace( 'SLUGS', JSON.stringify( sc.plugins || [] ) ).replaceAll( 'NAME', name ) },
 		{ step: 'runPHP', code: FRONT_POST.replaceAll( "getenv( 'BF_NAME' )", JSON.stringify( name ) ) },
 	];
 	const mu = DIR + name + '.force-active.php';
 	fs.writeFileSync( mu, `<?php
-// Test-only: keep the scenario's plugins and Backdrop Filters active on every request.
+// Test-only: keep the scenario's plugins and Glass Act active on every request.
 add_filter( 'option_active_plugins', function ( $active ) {
 	static $files = null;
 	if ( null === $files ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		$slugs = array_merge( ${ JSON.stringify( sc.plugins || [] ).replace( /^\[/, 'array(' ).replace( /\]$/, ')' ) }, array( 'backdrop-filters' ) );
+		$slugs = array_merge( ${ JSON.stringify( sc.plugins || [] ).replace( /^\[/, 'array(' ).replace( /\]$/, ')' ) }, array( 'glass-act' ) );
 		$files = array();
 		foreach ( get_plugins() as $f => $d ) { if ( in_array( dirname( $f ), $slugs, true ) ) { $files[] = $f; } }
 	}
@@ -183,7 +183,7 @@ add_action( 'template_redirect', function () {
 	const bp = DIR + name + '.blueprint.json';
 	fs.writeFileSync( bp, JSON.stringify( { login: true, preferredVersions: { wp: sc.wp, php: sc.php }, steps } ) );
 	const p = port++;
-	const srv = spawn( 'npx', [ '-y', '@wp-playground/cli@latest', 'server', '--port=' + p, '--blueprint=' + bp, '--mount=' + PLUGIN + ':/wordpress/wp-content/plugins/backdrop-filters', '--mount=' + OUT + ':/out', '--mount=' + mu + ':/wordpress/wp-content/mu-plugins/force-active.php' ], { cwd: DIR, stdio: [ 'ignore', 'pipe', 'pipe' ] } );
+	const srv = spawn( 'npx', [ '-y', '@wp-playground/cli@latest', 'server', '--port=' + p, '--blueprint=' + bp, '--mount=' + PLUGIN + ':/wordpress/wp-content/plugins/glass-act', '--mount=' + OUT + ':/out', '--mount=' + mu + ':/wordpress/wp-content/mu-plugins/force-active.php' ], { cwd: DIR, stdio: [ 'ignore', 'pipe', 'pipe' ] } );
 	let log = '';
 	srv.stdout.on( 'data', ( d ) => ( log += d ) );
 	srv.stderr.on( 'data', ( d ) => ( log += d ) );
@@ -230,8 +230,8 @@ add_action( 'template_redirect', function () {
 		}
 		result.editorUrl = page.url();
 		result.editor = await page.evaluate( editorTest );
-		result.editorScriptLoaded = await page.evaluate( () => !! [ ...document.scripts ].find( ( x ) => x.src.includes( 'plugins/backdrop-filters' ) ) );
-		const ourErrors = consoleErrors.filter( ( e ) => /backdrop|plugins\/backdrop-filters/i.test( e ) );
+		result.editorScriptLoaded = await page.evaluate( () => !! [ ...document.scripts ].find( ( x ) => x.src.includes( 'plugins/glass-act' ) ) );
+		const ourErrors = consoleErrors.filter( ( e ) => /backdrop|plugins\/glass-act/i.test( e ) );
 		result.consoleErrors = consoleErrors.length;
 		result.consoleErrorsFromPlugin = ourErrors;
 		result.consoleErrorSample = consoleErrors.slice( 0, 3 );
@@ -245,7 +245,7 @@ add_action( 'template_redirect', function () {
 		const af = OUT + '/' + name + '-activation.json';
 		result.activation = fs.existsSync( af ) ? JSON.parse( fs.readFileSync( af, 'utf8' ) ) : null;
 		result.phpNotices = debug.split( '\n' ).filter( ( l ) => /PHP (Fatal|Warning|Notice|Deprecated)/.test( l ) ).length;
-		result.phpFromPlugin = debug.split( '\n' ).filter( ( l ) => /backdrop-filters/.test( l ) ).slice( 0, 5 );
+		result.phpFromPlugin = debug.split( '\n' ).filter( ( l ) => /glass-act/.test( l ) ).slice( 0, 5 );
 		await page.close();
 	} catch ( e ) {
 		result.error = String( e ).slice( 0, 500 );

@@ -1,4 +1,4 @@
-# Backdrop Filters
+# Glass Act – Backdrop Filters for Blocks
 
 A WordPress plugin that adds a **Backdrop filter** setting (blur, brightness, contrast, grayscale, hue, invert, saturation, sepia) next to the background color of blocks.
 
@@ -12,7 +12,7 @@ npm run build        # build/index.js
 npm run lint:js
 composer install
 composer lint        # WordPress Coding Standards + PHP 7.4 compatibility
-npm run plugin-zip   # backdrop-filters.zip for WordPress.org
+npm run plugin-zip   # glass-act.zip for WordPress.org
 ```
 
 Before a release, run the tests (they start throwaway WordPress Playground sites and need Google Chrome; set `CHROME_PATH` if it isn't in the default macOS location):

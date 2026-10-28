@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name:       Backdrop Filters
- * Plugin URI:        https://github.com/jobthomas/backdrop-filters
+ * Plugin Name:       Glass Act – Backdrop Filters for Blocks
+ * Plugin URI:        https://github.com/jobthomas/glass-act
  * Description:       Adds backdrop filters (blur, brightness, contrast, grayscale, hue, invert, saturation, sepia) next to the background color of blocks.
  * Version:           1.0.0
  * Requires at least: 6.6
@@ -10,9 +10,9 @@
  * Author URI:        https://job.blog
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       backdrop-filters
+ * Text Domain:       glass-act
  *
- * @package BackdropFilters
+ * @package GlassAct
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  * @param mixed $value Stored value.
  * @return string CSS value.
  */
-function backdrop_filters_css_value( $value ) {
+function glass_act_css_value( $value ) {
 	if ( ! is_string( $value ) || strlen( $value ) > 200 ) {
 		return '';
 	}
@@ -56,7 +56,7 @@ function backdrop_filters_css_value( $value ) {
  * @param WP_Block_Type $block_type Block type.
  * @return array[] Rules: 'selector' (full), 'wrapper' (required wrapper classes), 'target' (last simple selector).
  */
-function backdrop_filters_targets( $block_type ) {
+function glass_act_targets( $block_type ) {
 	$skip = $block_type->supports['color']['__experimentalSkipSerialization'] ?? false;
 	if ( true !== $skip && ! in_array( 'background', (array) $skip, true ) ) {
 		return array();
@@ -83,7 +83,7 @@ function backdrop_filters_targets( $block_type ) {
  * @param WP_HTML_Tag_Processor $tags Processor positioned on a tag.
  * @param string                $css  Validated CSS value.
  */
-function backdrop_filters_add_style( $tags, $css ) {
+function glass_act_add_style( $tags, $css ) {
 	$style = $tags->get_attribute( 'style' );
 	$style = is_string( $style ) ? rtrim( trim( $style ), ';' ) : '';
 	$tags->set_attribute( 'style', ( '' === $style ? '' : $style . ';' ) . "-webkit-backdrop-filter:{$css};backdrop-filter:{$css}" );
@@ -100,7 +100,7 @@ function backdrop_filters_add_style( $tags, $css ) {
  * @param array  $block         Parsed block.
  * @return string
  */
-function backdrop_filters_render_block( $block_content, $block ) {
+function glass_act_render_block( $block_content, $block ) {
 	if ( empty( $block['attrs']['style']['backdropFilter'] ) || '' === trim( $block_content ) ) {
 		return $block_content;
 	}
@@ -110,7 +110,7 @@ function backdrop_filters_render_block( $block_content, $block ) {
 		return $block_content;
 	}
 
-	$css = backdrop_filters_css_value( $block['attrs']['style']['backdropFilter'] );
+	$css = glass_act_css_value( $block['attrs']['style']['backdropFilter'] );
 	if ( '' === $css ) {
 		return $block_content;
 	}
@@ -120,9 +120,9 @@ function backdrop_filters_render_block( $block_content, $block ) {
 		return $block_content;
 	}
 
-	$rules = $block_type ? backdrop_filters_targets( $block_type ) : array();
+	$rules = $block_type ? glass_act_targets( $block_type ) : array();
 	if ( ! $rules ) {
-		backdrop_filters_add_style( $tags, $css );
+		glass_act_add_style( $tags, $css );
 		return $tags->get_updated_html();
 	}
 
@@ -141,7 +141,7 @@ function backdrop_filters_render_block( $block_content, $block ) {
 	do {
 		foreach ( $targets as $target ) {
 			if ( '.' === $target[0] ? $tags->has_class( substr( $target, 1 ) ) : strtoupper( $target ) === $tags->get_tag() ) {
-				backdrop_filters_add_style( $tags, $css );
+				glass_act_add_style( $tags, $css );
 				break;
 			}
 		}
@@ -149,16 +149,16 @@ function backdrop_filters_render_block( $block_content, $block ) {
 
 	return $tags->get_updated_html();
 }
-add_filter( 'render_block', 'backdrop_filters_render_block', 10, 2 );
+add_filter( 'render_block', 'glass_act_render_block', 10, 2 );
 
 /**
  * Enqueues the editor script.
  */
-function backdrop_filters_enqueue_editor_assets() {
+function glass_act_enqueue_editor_assets() {
 	$asset = include __DIR__ . '/build/index.asset.php';
 
 	wp_enqueue_script(
-		'backdrop-filters',
+		'glass-act',
 		plugins_url( 'build/index.js', __FILE__ ),
 		$asset['dependencies'],
 		$asset['version'],
@@ -169,13 +169,13 @@ function backdrop_filters_enqueue_editor_assets() {
 	// older WordPress versions do not expose block selectors client-side.
 	$targets = array();
 	foreach ( WP_Block_Type_Registry::get_instance()->get_all_registered() as $name => $block_type ) {
-		$rules = backdrop_filters_targets( $block_type );
+		$rules = glass_act_targets( $block_type );
 		if ( $rules ) {
 			$targets[ $name ] = wp_list_pluck( $rules, 'selector' );
 		}
 	}
-	wp_add_inline_script( 'backdrop-filters', 'window.backdropFilters = ' . wp_json_encode( array( 'targets' => $targets ) ) . ';', 'before' );
+	wp_add_inline_script( 'glass-act', 'window.glassAct = ' . wp_json_encode( array( 'targets' => $targets ) ) . ';', 'before' );
 
-	wp_set_script_translations( 'backdrop-filters', 'backdrop-filters' );
+	wp_set_script_translations( 'glass-act', 'glass-act' );
 }
-add_action( 'enqueue_block_editor_assets', 'backdrop_filters_enqueue_editor_assets' );
+add_action( 'enqueue_block_editor_assets', 'glass_act_enqueue_editor_assets' );

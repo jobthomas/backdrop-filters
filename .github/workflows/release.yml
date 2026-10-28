@@ -31,7 +31,7 @@ jobs:
       - name: Check the tag matches the plugin version
         if: github.ref_type == 'tag'
         run: |
-          header=$(sed -n 's/^ \* Version: *//p' backdrop-filters.php)
+          header=$(sed -n 's/^ \* Version: *//p' glass-act.php)
           stable=$(sed -n 's/^Stable tag: *//p' readme.txt)
           echo "Tag ${GITHUB_REF_NAME}, plugin header ${header}, readme Stable tag ${stable}"
           [ "$GITHUB_REF_NAME" = "$header" ] && [ "$GITHUB_REF_NAME" = "$stable" ]
@@ -41,18 +41,18 @@ jobs:
           npm ci
           npm run build
           npm run plugin-zip
-          unzip -q backdrop-filters.zip -d dist
+          unzip -q glass-act.zip -d dist
 
       - uses: actions/upload-artifact@v7
         with:
-          name: backdrop-filters
+          name: glass-act
           path: dist
 
       - name: Publish GitHub release
         if: github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" backdrop-filters.zip --title "$GITHUB_REF_NAME" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" glass-act.zip --title "$GITHUB_REF_NAME" --generate-notes
 
       - name: Deploy to WordPress.org
         if: github.ref_type == 'tag' && env.SVN_PASSWORD != ''
@@ -60,5 +60,5 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SLUG: backdrop-filters
-          BUILD_DIR: dist/backdrop-filters
+          SLUG: glass-act
+          BUILD_DIR: dist/glass-act
